@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="utf-8">
+<link rel="stylesheet" href="stylesheet.css">
+</head>
+<body onload="loadTasks()">
+
+<div id="myDIV" class="header">
+  <h2 style="margin:5px; margin-bottom: 20px; font-family: 'Segoe UI';">Todo List</h2>
+  <input type="text" id="myInput" placeholder="Thêm task todo">
+  <span onclick="newElement()" class="addBtn" id="addBtn" style="font-family: 'Segoe UI';">Thêm task</span>
+</div>
+
+<ul id="myUL" style="font-family: 'Segoe UI'; font-weight:bold;">
+</ul>
+
+<script>
+
+// Retrieve elements and store them in variables
+const todoForm = document.getElementById("newTodoForm");
+const todoList = document.getElementById("todoList");
+
+// Get data stored in localStorage under the key "todos".
+// OR operator as fallback in case `localStorage` is empty
+const savedTodos = JSON.parse(localStorage.getItem("todos")) || [];
+
+// Create a "close" button and append it to each list item
+var myNodelist = document.getElementsByTagName("LI");
+var i;
+for (i = 0; i < myNodelist.length; i++) {
+  var span = document.createElement("SPAN");
+  var txt = document.createTextNode("\u00D7");
+  span.className = "close";
+  span.appendChild(txt);
+  myNodelist[i].appendChild(span);
+}
+
+// Click on a close button to hide the current list item
+var close = document.getElementsByClassName("close");
+var i;
+for (let i = 0; i < close.length; i++) {
+      close[i].onclick = function() {
+        var div = this.parentElement;
+        localStorage.removeItem(i);
+        div.remove();
+      }
+}
+
+// Click on an edit button to edit the content of the current list item
+var edit = document.getElementsByClassName("edit");
+var i;
+for (let i = 0; i < edit.length; i++) {
+      edit[i].onclick = function() {
+        let taskEdit = prompt("Enter new task:")
+      }
+}
+
+// Create an "edit" button and append it to each list item
+var myNodelist = document.getElementsByTagName("LI");
+var i;
+for (i = 0; i < myNodelist.length; i++) {
+  var span = document.createElement("SPAN");
+  var txt = document.createTextNode("\u270E");
+  span.className = "edit";
+  span.appendChild(txt);
+  myNodelist[i].appendChild(span);
+}
+
+
+// Add a "checked" symbol when clicking on a list item
+var list = document.querySelector('ul');
+list.addEventListener('click', function(ev) {
+  if (ev.target.tagName === 'LI') {
+    ev.target.classList.toggle('checked');
+  }
+}, false);
+
+var input = document.getElementById("myInput");
+input.addEventListener("keypress", function(event) {
+  if (event.key === "Enter") {
+    event.preventDefault();
+    document.getElementById("addBtn").click();
+  }
+});
+
+// Create a new list item when clicking on the "Add" button
+function newElement() {
+  var li = document.createElement("li");
+  li.className="";
+    var inputValue = document.getElementById("myInput").value;
+    var spanTask = document.createElement("SPAN");
+    var t = document.createTextNode(inputValue);
+    spanTask.className = "task";
+    spanTask.appendChild(t);
+    li.appendChild(spanTask);
+    if (inputValue === '') {
+      alert("Người dùng chưa thêm task!");
+      return;
+    } else {
+      document.getElementById("myUL").appendChild(li);
+    }
+    document.getElementById("myInput").value = "";
+
+  var span = document.createElement("SPAN");
+  var txt = document.createTextNode("\u00D7");
+  span.className = "close";
+  span.appendChild(txt);
+  li.appendChild(span);
+
+  // Create an "edit" button and append it to each list item
+
+  var span = document.createElement("SPAN");
+  var txt = document.createTextNode("\u270E");
+  span.className = "edit";
+  span.appendChild(txt);
+  li.appendChild(span);
+
+  var spanDate = document.createElement("SPAN");
+  const rawDate = new Date();
+  let formattedDate = rawDate.toLocaleString();
+  var date = document.createTextNode(formattedDate);
+  spanDate.className = "date";
+  spanDate.appendChild(date);
+  li.appendChild(spanDate);
+
+  // `push` adds a new element to the `savedTodos` array. In this case, an object with 3 properties.
+  savedTodos.push({task: inputValue, taskdate: formattedDate, isCompleted: false });
+  // Overwrite the `todos` key in local storage with the updated array.
+  localStorage.setItem(localStorage.length++, JSON.stringify(savedTodos));
+  let i = Number(Object.keys(localStorage).sort().slice(-1)) ;
+  li.id = Number(Object.keys(localStorage).sort().slice(i,i+1));
+  savedTodos.length = 0;
+
+  for (let i = 0; i < close.length; i++) {
+      close[i].onclick = function() {
+        var div = this.parentElement;
+        localStorage.removeItem(i);
+        div.remove();
+      }
+    }
+
+  // Click on an edit button to edit the content of the current list item
+  for (let i = 0; i < edit.length; i++) {
+      edit[i].onclick = function() {
+        let taskEdit = prompt("Enter new task:");
+        let formattedDate = new Date().toLocaleString();
+        document.getElementById(document.getElementsByTagName("li")[i].id).getElementsByTagName("span")[0].innerHTML = taskEdit;
+        document.getElementById(document.getElementsByTagName("li")[i].id).getElementsByTagName("span")[3].innerHTML = formattedDate;
+        // `push` adds a new element to the `savedTodos` array. In this case, an object with 3 properties.
+        savedTodos.length = 0;
+        savedTodos.push({task: taskEdit, taskdate: formattedDate, isCompleted: false });
+        // Overwrite the `todos` key in local storage with the updated array.
+        localStorage.setItem(document.getElementsByTagName("li")[i].id, JSON.stringify(savedTodos));
+        savedTodos.length = 0;
+      }
+    }
+}
+
+// Load existing tasks at pageload
+function loadTasks() {
+  // Initiate todo list for loading
+  if (localStorage.getItem(i) === null) {
+    listTodos = [];
+  } else {
+    listTodos = (JSON.parse(localStorage[i]) || []);
+  }
+  // Run through todo list, skipping keys that doesn't exists and making sure loops reaches end key
+    for (let i = 1; i <= Number(Object.keys(localStorage).sort().slice(-1)); i++) {
+      if (localStorage.getItem(i) === null) {
+        listTodos = listTodos.concat([]);
+      } else {
+        listTodos = listTodos.concat(JSON.parse(localStorage[i]) || []);
+      }
+    }
+    for (let i = 0; i < localStorage.length; i++) {
+      // Create an <li> element in memory (does not appear in the document yet)
+      var li = document.createElement("li");
+      li.className="";
+      li.id = Number(Object.keys(localStorage).sort().slice(i,i+1));
+
+      // Append task to item
+      var inputValue = listTodos[i].task;
+      var spanTask = document.createElement("SPAN");
+      var t = document.createTextNode(inputValue);
+      spanTask.className = "task";
+      spanTask.appendChild(t);
+      li.appendChild(spanTask);
+      if (inputValue === '') {
+        alert("Item trống");
+      } else {
+
+        document.getElementById("myUL").appendChild(li);
+      }
+
+      // Append close button to item
+      var span = document.createElement("SPAN");
+      var txt = document.createTextNode("\u00D7");
+      span.className = "close";
+      span.appendChild(txt);
+      li.appendChild(span);
+
+      // Create an "edit" button and append it to each list item
+      var span = document.createElement("SPAN");
+      var txt = document.createTextNode("\u270E");
+      span.className = "edit";
+      span.appendChild(txt);
+      myNodelist[i].appendChild(span);
+
+      // Append task creation date to item
+      var spanDate = document.createElement("SPAN");
+      let formattedDate = new Date().toLocaleString();
+      var date = document.createTextNode(formattedDate);
+      spanDate.className = "date";
+      spanDate.appendChild(date);
+      li.appendChild(spanDate);
+      const taskDate = formattedDate;
+
+      // Create a new property on the element called `isCompleted` and assign a boolean value.
+      li.isCompleted = listTodos[i].isCompleted ? true : false;
+      // Check the value we just set.
+      if (li.isCompleted) {
+        // Create a style for the element if it is done (strike it out)
+        li.className = "checked";
+      }
+    }
+
+    // Click on a close button to delete the current list item
+    for (let i = 0; i < close.length; i++) {
+      close[i].onclick = function() {
+        var div = this.parentElement;
+        localStorage.removeItem(i);
+        div.remove();
+      }
+    }
+    // Click on an edit button to edit the content of the current list item
+    for (let i = 0; i < edit.length; i++) {
+      edit[i].onclick = function() {
+        let taskEdit = prompt("Enter new task:");
+        if (taskEdit === '') {
+          alert("Người dùng chưa thêm task!");
+          return;
+        } else {
+          document.getElementById(document.getElementsByTagName("li")[i].id).getElementsByTagName("span")[0].innerHTML = taskEdit;
+        }
+        let formattedDate = new Date().toLocaleString();
+        document.getElementById(document.getElementsByTagName("li")[i].id).getElementsByTagName("span")[3].innerHTML = formattedDate;
+        // `push` adds a new element to the `savedTodos` array. In this case, an object with 3 properties.
+        savedTodos.length = 0;
+        savedTodos.push({task: taskEdit, taskdate: formattedDate, isCompleted: false });
+        // Overwrite the `todos` key in local storage with the updated array.
+        localStorage.setItem(document.getElementsByTagName("li")[i].id, JSON.stringify(savedTodos));
+        savedTodos.length = 0;
+      }
+    }
+
+    // Parse item as completed if checked in UI
+    for (let i = 0; i < localStorage.length; i++) {
+      var node = document.getElementById(document.getElementsByTagName("li")[i].id);
+      const options = {
+        attributes: true
+      }
+      // Set up MutationObserver to listen to checked elements
+      function callback(mutationList, observer) {
+        mutationList.forEach(function(mutation) {
+          checkedList = (JSON.parse(localStorage[document.getElementsByTagName("li")[i].id]) || []);
+          checkedTask = document.getElementById(document.getElementsByTagName("li")[i].id).getElementsByTagName("span")[0].innerHTML;
+          checkedDate = document.getElementById(document.getElementsByTagName("li")[i].id).getElementsByTagName("span")[3].innerHTML;
+          //Listen for class changes WHILE item is not completed
+          if (mutation.type === 'attributes' && mutation.attributeName === 'class' && checkedList[0].isCompleted === false) {
+            savedTodos.length = 0;
+            savedTodos.push({task: checkedTask, taskdate: checkedDate, isCompleted: true });
+            localStorage.setItem(document.getElementsByTagName("li")[i].id, JSON.stringify(savedTodos));
+            savedTodos.length = 0;
+          }
+          // Like before, but WHILE item is completed
+          else if (mutation.type === 'attributes' && mutation.attributeName === 'class' && checkedList[0].isCompleted === true) {
+            savedTodos.length = 0;
+            savedTodos.push({task: checkedTask, taskdate: checkedDate, isCompleted: false });
+            localStorage.setItem(document.getElementsByTagName("li")[i].id, JSON.stringify(savedTodos));
+            savedTodos.length = 0;
+          }
+        })
+      }
+
+      const observer = new MutationObserver(callback)
+      observer.observe(node, options)
+          }
+  }
+
+</script>
+
+</body>
+</html>

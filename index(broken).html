@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="utf-8">
+<style>
+  body {
+    margin: 0;
+    min-width: 250px;
+  }
+  
+  /* Include the padding and border in an element's total width and height */
+  * {
+    box-sizing: border-box;
+  }
+  
+  /* Remove margins and padding from the list */
+  ul {
+    margin: 0;
+    padding: 0;
+  }
+  
+  /* Style the list items */
+  ul li {
+    cursor: pointer;
+    position: relative;
+    padding: 12px 8px 12px 40px;
+    list-style-type: none;
+    background: #eee;
+    font-size: 18px;
+    transition: 0.2s;
+    
+    /* make the list items unselectable */
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+  
+  /* Set all odd list items to a different color (zebra-stripes) */
+  ul li:nth-child(odd) {
+    background: #f9f9f9;
+  }
+  /*Set first list item to forced border */
+  
+  ul li:first-child {
+      border: 1px solid #888;
+  }
+  /* Set all items except the first to only bottom border to avoid border conflict */
+  ul li:not(:first-child) {
+      border-bottom: 1px solid #888;
+  }
+  
+  /* Darker background-color on hover */
+  ul li:hover {
+    background: #888;
+  }
+  
+  /* When clicked on, add a background color and strike out text */
+  ul li.checked {
+    background: #888;
+    color: #fff;
+    text-decoration: line-through;
+  }
+  
+  /* Set all odd list items to a different color (zebra-stripes) */
+  ul li.checked:nth-child(odd) {
+    background: #555;
+  }
+  /*Set first list item to forced border */
+  
+  ul li.checked:first-child {
+      border: 1px solid #f9f9f9;
+  }
+  /* Set all items except the first to only bottom border to avoid border conflict */
+  ul li.checked:not(:first-child) {
+      border-bottom: 1px solid #f9f9f9;
+  }
+  
+  /* Darker background-color on hover */
+  ul li:hover {
+    background: #888;
+  }
+  
+  /* Add a "checked" mark when clicked on */
+  ul li.checked::before {
+    content: '';
+    position: absolute;
+    border-color: #fff;
+    border-style: solid;
+    border-width: 0 2px 2px 0;
+    top: 14px;
+    left: 17px;
+    transform: rotate(45deg);
+    height: 15px;
+    width: 7px;
+  }
+  
+  /* Style the close button */
+  .close {
+    position: absolute;
+    right: 0;
+    top: 0;
+    padding: 12px 16px 12px 16px;
+  }
+  
+  .close:hover {
+    background-color: #555;
+    color: white;
+  }
+  
+  /* Style the date bar*/
+  .date {
+    position: absolute;
+    right: 40px;
+    top: 0;
+    padding: 12px 16px 12px 16px;
+  }
+  
+  /* Style the header */
+  .header {
+    background-color: #ffffff;
+    padding: 30px 40px;
+    color: rgb(0, 0, 0);
+    text-align: center;
+  }
+  
+  /* Clear floats after the header */
+  .header:after {
+    content: "";
+    display: table;
+    clear: both;
+  }
+  
+  /* Style the input */
+  input {
+    margin: 0;
+    box-sizing: border-box;
+    border: 3px solid #d9d9d9;
+    border-radius: 1px;
+    width: 75%;
+    padding: 10px;
+    float: left;
+    font-size: 16px;
+  }
+  
+  /* Style the "Add" button */
+  .addBtn {
+    padding: 12px;
+    width: 25%;
+    background: #d9d9d9;
+    color: #555;
+    float: left;
+    text-align: center;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.3s;
+    border-radius: 0;
+  }
+  
+  .addBtn:hover {
+    background-color: #bbb;
+  }
+  </style>
+</head>
+
+<script>
+
+  // Retrieve elements and store them in variables
+  const todoForm = document.getElementById("newTodoForm");
+  const todoList = document.getElementById("todoList");
+  
+  // Get data stored in sessionStorage under the key "todos".
+  // OR operator as fallback in case `sessionStorage` is empty
+  const savedTodos = JSON.parse(sessionStorage.getItem("todos")) || [];
+  
+  // Create a "close" button and append it to each list item
+  var myNodelist = document.getElementsByTagName("LI");
+  var i;
+  for (i = 0; i < myNodelist.length; i++) {
+    var span = document.createElement("SPAN");
+    var txt = document.createTextNode("\u00D7");
+    span.className = "close";
+    span.appendChild(txt);
+    myNodelist[i].appendChild(span);
+  }
+  
+  // Click on a close button to delete the current list item from session storage
+  var close = document.getElementsByClassName("close");
+  var i;
+  for (i = 0; i < savedTodos.length; i++) {
+    close[i].onclick = function() {
+      var div = this.parentElement;
+      div.remove();
+      savedTodos.splice(1,1);
+      sessionStorage.setItem("todos", JSON.stringify(savedTodos));
+      
+    }
+  }
+  
+  // Add a "checked" symbol when clicking on a list item
+  var list = document.querySelector('ul');
+  list.addEventListener('click', function(ev) {
+    if (ev.target.tagName === 'LI') {
+      ev.target.classList.toggle('checked');
+    }
+  }, false);
+  
+  // Let user press 'enter' instead of mouse click
+  var input = document.getElementById("myInput");
+  input.addEventListener("keypress", function(event) {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      document.getElementById("addBtn").click();
+    }
+  });
+  
+  // Create a new list item when clicking on the "Add" button
+  function newElement() {
+    const savedTodos = JSON.parse(sessionStorage.getItem("todos")) || [];
+  
+    var li = document.createElement("li");
+    var inputValue = document.getElementById("myInput").value;
+    var spanTask = document.createElement("SPAN");
+    var t = document.createTextNode(inputValue);
+    spanTask.className = "task";
+    spanTask.appendChild(t);
+    li.appendChild(spanTask);
+    if (inputValue === '') {
+      alert("Người dùng chưa thêm task!");
+    } else {
+  
+      document.getElementById("myUL").appendChild(li);
+    }
+    document.getElementById("myInput").value = "";
+  
+    var span = document.createElement("SPAN");
+    var txt = document.createTextNode("\u00D7");
+    span.className = "close";
+    span.appendChild(txt);
+    li.appendChild(span);
+  
+    var spanDate = document.createElement("SPAN");
+    const rawDate = new Date();
+    let formattedDate = rawDate.toLocaleString();
+    var date = document.createTextNode(formattedDate);
+    spanDate.className = "date";
+    spanDate.appendChild(date);
+    li.appendChild(spanDate);
+    const taskDate = formattedDate;
+  
+    // `push` adds a new element to the `savedTodos` array. In this case, an object with 3 properties.
+    savedTodos.push({task: inputValue, taskdate: formattedDate, isCompleted: false });
+  
+    // Overwrite the `todos` key in local storage with the updated array.
+    sessionStorage.setItem("todos", JSON.stringify(savedTodos));
+    var close = document.getElementsByClassName("close");
+    for (i = 0; i < savedTodos.length; i++) {
+      close[i].onclick = function() {
+        var div = this.parentElement;
+        div.remove();
+        savedTodos.splice(i,1);
+        sessionStorage.setItem("todos", JSON.stringify(savedTodos));
+        
+      }
+    }
+  }
+  
+  
+  
+  // The code above changes the documents version of the data (the elements themselves)
+    // This loop ensures that the array of todos data is kept in sync with the document
+    // Loop over the array
+    for (let i = 0; i < savedTodos.length; i++) {
+      // if the item in the array has the same text as the item just clicked...
+      if (savedTodos[i].task === clickedListItem.innerText) {
+        // toggle the completed state
+        savedTodos[i].isCompleted = clickedListItem.isCompleted;
+        // Update the sessionStorage with the new todos array.
+        sessionStorage.setItem("todos", JSON.stringify(savedTodos));
+      }
+    }
+  
+  function loadTasks() {
+    const savedTodos = JSON.parse(sessionStorage.getItem("todos")) || [];
+    for (let i = 0; i < savedTodos.length; i++) {
+      // Create an <li> element in memory (does not appear in the document yet)
+      var li = document.createElement("li");
+      // Append task to item
+      var inputValue = savedTodos[i].task;
+      var spanTask = document.createElement("SPAN");
+      var t = document.createTextNode(inputValue);
+      spanTask.className = "task";
+      spanTask.appendChild(t);
+      li.appendChild(spanTask);
+      if (inputValue === '') {
+        alert("Item trống");
+      } else {
+  
+        document.getElementById("myUL").appendChild(li);
+      }
+  
+      // Append close button to item
+      var span = document.createElement("SPAN");
+      var txt = document.createTextNode("\u00D7");
+      span.className = "close";
+      span.appendChild(txt);
+      li.appendChild(span);
+  
+      // Append task creation date to item 
+      var spanDate = document.createElement("SPAN");
+      const rawDate = new Date();
+      let formattedDate = rawDate.toLocaleString();
+      var date = document.createTextNode(formattedDate);
+      spanDate.className = "date";
+      spanDate.appendChild(date);
+      li.appendChild(spanDate);
+      const taskDate = formattedDate;
+  
+      // Create a new property on the element called `isCompleted` and assign a boolean value.
+      // This is only accessible in code and will not show up when appending to the DOM.
+      li.isCompleted = savedTodos[i].isCompleted ? true : false;
+      // Check the value we just set.
+      if (li.isCompleted) {
+        // Create a style for the element if it is done (strike it out)
+        li.style.textDecoration = "line-through";
+      }
+    }
+  
+    // Click on a close button to hide the current list item
+    var close = document.getElementsByClassName("close");
+    for (i = 0; i < savedTodos.length; i++) {
+      close[i].onclick = function() {
+        var div = this.parentElement;
+        div.remove();
+        savedTodos.splice(i,1);
+        
+        sessionStorage.setItem("todos", JSON.stringify(savedTodos));
+        
+      }
+    }
+    
+  
+    }
+  
+  
+  </script>
+
+<body>
+
+<div id="myDIV" class="header">
+  <h2 style="margin:5px; margin-bottom: 20px; font-family: 'Segoe UI';">Todo List</h2>
+  <input type="text" id="myInput" placeholder="Thêm task todo">
+  <span onclick="newElement()" class="addBtn" id="addBtn" style="font-family: 'Segoe UI';">Thêm task</span>
+  <span onclick="loadTasks()" class="addBtn" id="loadBtn" style="font-family: 'Segoe UI';">Load task</span>
+</div>
+
+<ul id="myUL" style="font-family: 'Segoe UI'; font-weight:bold;">
+</ul>
+
+
+
+</body>
+</html>
