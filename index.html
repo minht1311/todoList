@@ -492,6 +492,7 @@ function loadTasks() {
       // Set up MutationObserver to listen to checked elements
       function callback(mutationList, observer) {
         mutationList.forEach(function(mutation) {
+          // Prepare each task's elements for observing and parsing if a param is changed
           checkedList = (JSON.parse(localStorage[document.getElementsByTagName("li")[i].id]) || []);
           checkedTask = checkedList[0].task;
           checkedDate = checkedList[0].taskdate;
@@ -507,6 +508,9 @@ function loadTasks() {
               checkedDueDate != "" &&
               checkedDueDate > new Date().toLocaleString("vi-VN","hour12=false"):
 
+              // Empties editTodos before parsing an item
+              // to make sure the code doesn't re-parse
+              // old items into new items
               editTodos.length = 0;
               editTodos.push({
                 task: checkedTask,
@@ -520,11 +524,12 @@ function loadTasks() {
               // Unfortunately, it seems to enter an infinite loop and leaks a ton of memory
 
               //element.classList.add("checkedCompleted");
-
+              
+              //Creates a new element for a completion confirm (optional)
               const para2 = document.createElement("p2");
               para2.innerText = "Task completed!";
 
-              // Append to body:
+              // Append style change and new element to body:
               document.getElementById(i).appendChild(para2).setAttribute("id", "demo1");
               document.getElementById(i).setAttribute("style", "background: #00c500")
 
@@ -548,8 +553,10 @@ function loadTasks() {
               editTodos.length = 0;
 
               //element.classList.remove("checkedCompleted");
+
+              //Get the existing confirmation into a const
               const para4 = document.getElementById("demo1");
-              // Append to body:
+              // Remove the retrieved element and clear any appended styes on the parent element:
               para4.remove();
               document.getElementById(i).setAttribute("style", "")
 
@@ -605,7 +612,7 @@ function loadTasks() {
 
               break;
 
-              case // Items without due dates don't get painted
+              case // Items without due dates uses the normal event toggle above
             mutation.type === 'attributes' && mutation.attributeName === 'class' &&
             !checkedList[0].isCompleted &&
 
